@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>CDG (KARAOKE) Player</title>
+    <style>
+        body,input{
+            font-family: courier;
+        }
+    </style>
+    <script src="CDGDisplay.js"></script>
+    <script>
+        var audioFile;
+        var cdgFile;
+        var reader = new FileReader();
+        var reader2 = new FileReader();
+        var audioPlayer;
+        var cdg;
+        var intervalId;
+        var time=0;
+
+        window.AudioContext = window.AudioContext||window.webkitAudioContext;
+        var audioContext = new AudioContext();
+
+        reader.onload = function(e){
+            //var inData = new Uint8Array(e.target.result);
+            playMusic(e.target.result);
+        }
+        reader2.onload = function(e){
+            var inData = new Uint8Array(e.target.result);
+            cdg.loadBytes(inData);
+        }
+        function toggleMusic(){
+
+        }
+        function playMusic(buffer){
+            audioContext.decodeAudioData(buffer, function(buffer) {
+                var source = audioContext.createBufferSource(); // creates a sound source
+                source.buffer = buffer;                    // tell the source which sound to play
+                source.connect(audioContext.destination);       // connect the source to the context's destination (the speakers)
+                source.start(0);
+                intervalId = setInterval(updateCDG,20);
+            });
+
+        }
+        var offsetPosition = 0;
+        var syncOffset = 0;
+        var LYRIC_SYNC_FACTOR = 0.166668;//chrome
+
+        function updateCDG(){
+            time++
+            cdg.render(( syncOffset + offsetPosition + time) / LYRIC_SYNC_FACTOR);
+
+            /*var play_position = Math.floor(time/1000 * 300);
+            var current_pack  = cdg.currentPacket;
+            play_position = (play_position < 0) ? 0 : play_position;
+            if (play_position < (current_pack-300))  {
+                //my_cdgdecoder.reset_cdg_state();
+                current_pack = 0;
+            };
+            var position_to_play = current_pack+6;
+            position_to_play = (play_position > position_to_play) ? play_position : position_to_play;
+            if (position_to_play > current_pack)
+            {
+                cdg.render(position_to_play);
+            };*/
+
+        }
+        function init(){
+            document.getElementById('syncFactor').value = LYRIC_SYNC_FACTOR;
+            var canvas = document.getElementById("canvas");
+            audioPlayer = document.getElementById("audioPlayer");
+            cdg = new nid.CDGDisplay(canvas);
+            //cdg.speed = 5;
+            //cdg.currentPos = 1000;
+            var fileInput = document.getElementById("fileBrowser");
+            var fileInput2 = document.getElementById("fileBrowser2");
+            fileInput.onchange = function(e){
+                audioFile = this.files[0];
+                //audioPlayer.src = this.files[0];
+                reader.readAsArrayBuffer(audioFile);
+            }
+            fileInput2.onchange = function(e){
+                cdgFile = this.files[0];
+                reader2.readAsArrayBuffer(cdgFile);
+            }
+        }
+        function updateSyncFactor(value){
+            LYRIC_SYNC_FACTOR = value;
+        }
+    </script>
+</head>
+<body onload="init()">
+<b>-------------------------------------------------------------<br>
+    CDG Karaoke Decoder      <br>
+    -------------------------------------------------------------</b><br>
+Select CDG:<input type="file" id="fileBrowser2"/><br>
+Select MP3:<input type="file" id="fileBrowser"/> <br><br>
+<canvas id="canvas" width="320" height="216" style="background-color: #2a2a2a"></canvas><br>
+<input type="text" id="syncFactor" value="0.2" onchange="updateSyncFactor(this.value)">
+<button id="start" onclick="toggleMusic()">Play</button><br><br>
+<div style="font-size: 12px">Developed by Nidin Vinayakan</div>
+</body>
+</html>

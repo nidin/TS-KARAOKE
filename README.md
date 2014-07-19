@@ -1,4 +1,4 @@
 TS-KARAOKE
 ==========
 
-KARAOKE Player written in TypeScript / JavaScript
+CD+G KARAOKE Player written in TypeScript / JavaScript

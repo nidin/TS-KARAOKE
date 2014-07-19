@@ -50,21 +50,6 @@
         function updateCDG(){
             time++
             cdg.render(( syncOffset + offsetPosition + time) / LYRIC_SYNC_FACTOR);
-
-            /*var play_position = Math.floor(time/1000 * 300);
-            var current_pack  = cdg.currentPacket;
-            play_position = (play_position < 0) ? 0 : play_position;
-            if (play_position < (current_pack-300))  {
-                //my_cdgdecoder.reset_cdg_state();
-                current_pack = 0;
-            };
-            var position_to_play = current_pack+6;
-            position_to_play = (play_position > position_to_play) ? play_position : position_to_play;
-            if (position_to_play > current_pack)
-            {
-                cdg.render(position_to_play);
-            };*/
-
         }
         function init(){
             document.getElementById('syncFactor').value = LYRIC_SYNC_FACTOR;

@@ -6,4 +6,4 @@ install:
   - "npm install -g closure-compiler"
 script:
   - 'echo Compiling src/CDGDisplay.ts ...'
-  - 'tsc -t "ES5" --declaration --out "build/CDGDisplay.js" "src/CDGDisplay.ts" --sourcemap'
+  - 'tsc -t "ES5" --declaration --out "build/CDGDisplay.js" "src/nid/CDGDisplay.ts" --sourcemap'

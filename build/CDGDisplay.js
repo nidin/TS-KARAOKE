@@ -1,5 +1,6 @@
 var nid;
 (function (nid) {
+    var utils;
     (function (utils) {
         var MEMORY = (function () {
             function MEMORY() {
@@ -31,7 +32,6 @@ var nid;
                 }
                 return MEMORY.u32Index++;
             };
-
             MEMORY.allocateInt8 = function (len) {
                 MEMORY.i8 = new Int8Array(len);
             };
@@ -59,7 +59,6 @@ var nid;
                 }
                 return MEMORY.i32Index++;
             };
-
             MEMORY.allocateFloat32 = function (len) {
                 MEMORY.f32 = new Float32Array(len);
             };
@@ -78,30 +77,35 @@ var nid;
                 }
                 return MEMORY.f64Index++;
             };
+            /**
+             * UNSIGNED INTEGERS
+             */
             MEMORY.u8Index = 0;
             MEMORY.u16Index = 0;
             MEMORY.u32Index = 0;
-
+            /**
+             * SIGNED INTEGERS
+             */
             MEMORY.i8Index = 0;
             MEMORY.i16Index = 0;
             MEMORY.i32Index = 0;
-
+            /**
+             * FLOAT
+             */
             MEMORY.f32Index = 0;
             MEMORY.f64Index = 0;
             return MEMORY;
         })();
         utils.MEMORY = MEMORY;
-    })(nid.utils || (nid.utils = {}));
-    var utils = nid.utils;
+    })(utils = nid.utils || (nid.utils = {}));
 })(nid || (nid = {}));
 ///<reference path="../MEMORY.ts" />
 /**
-* Created by nidin on 19-07-2014.
-*/
+ * Created by nidin on 19-07-2014.
+ */
 var nid;
 (function (nid) {
     var MEMORY = nid.utils.MEMORY;
-
     var CDGDisplay = (function () {
         function CDGDisplay(canvas) {
             this.EOF = "EndOfFile";
@@ -124,17 +128,14 @@ var nid;
             this.type = MEMORY.getUint8();
             this.SC_MASK = MEMORY.getUint8();
             this.CDG_CMD = MEMORY.getUint8();
-
             this.C = MEMORY.getUint32();
             this.C0 = MEMORY.getUint32();
             this.C1 = MEMORY.getUint32();
             this.ROW = MEMORY.getUint32();
             this.COL = MEMORY.getUint32();
             this.SCANL = MEMORY.getUint32();
-
             MEMORY.u8[this.SC_MASK] = 0x3F;
             MEMORY.u8[this.CDG_CMD] = 0x09;
-
             this.canvas = canvas;
             this.context = canvas.getContext('2d');
             this.imageData = this.context.createImageData(this.WIDTH, this.HEIGHT);
@@ -150,10 +151,9 @@ var nid;
             this.ready = true;
         };
         CDGDisplay.prototype.render = function (tempPos, transparent) {
-            if (typeof transparent === "undefined") { transparent = false; }
+            if (transparent === void 0) { transparent = false; }
             tempPos *= this.speed;
             this.context.clearRect(0, 0, this.WIDTH, this.HEIGHT);
-
             for (var y = 0; y < this.HEIGHT; y++) {
                 for (var x = 0; x < this.WIDTH; x++) {
                     var rgb = this.colorTable[this.pixelColorIndex[y * this.WIDTH + x]];
@@ -163,15 +163,6 @@ var nid;
                         this.bitmapData[((this.WIDTH * y) + x) * 4 + 2] = rgb[2];
                         this.bitmapData[((this.WIDTH * y) + x) * 4 + 3] = 255;
                     }
-                    /*this.bitmapData[((this.WIDTH * y) + x) * 4]     = (rgb & 0xFF0000) >> 16;
-                    this.bitmapData[((this.WIDTH * y) + x) * 4 + 1] = (rgb & 0x00FF00) >> 8;
-                    this.bitmapData[((this.WIDTH * y) + x) * 4 + 2] = (rgb & 0x0000FF);
-                    this.bitmapData[((this.WIDTH * y) + x) * 4 + 3] = 255;*/
-                    /*var r = (rgb & 0xFF0000) >> 16;
-                    var g = (rgb & 0x00FF00) >> 8;
-                    var b = (rgb & 0x0000FF);*/
-                    /*this.context.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + 255 + ')';
-                    this.context.fillRect(x, y, 1, 1);*/
                 }
             }
             if (this.currentPos > tempPos) {
@@ -179,14 +170,13 @@ var nid;
                 for (var i = 0; i < tempPos; i++) {
                     this.draw();
                 }
-            } else {
+            }
+            else {
                 for (i = this.currentPos; i < tempPos; i++) {
                     this.draw();
                 }
             }
-
             this.currentPos = tempPos;
-
             //var scale:number = Math.min(this.width / this.WIDTH, this.width / this.HEIGHT);
             //var bd:BitmapData = new BitmapData(this.WIDTH * scale, this.HEIGHT * scale, true, 0x00000000);
             //bd.draw(bitData);
@@ -197,12 +187,10 @@ var nid;
             //}
             this.context.putImageData(this.imageData, 0, 0);
         };
-
         CDGDisplay.prototype.setSize = function (w, h) {
             this.width = w;
             this.height = h;
         };
-
         CDGDisplay.prototype.draw = function () {
             var i = this.currentPacket * 24;
             this.currentPacket++;
@@ -211,12 +199,9 @@ var nid;
                 console.log(this.EOF);
                 return false;
             }
-
             var percent = i / this.bytes.length;
-
             if ((this.bytes[i] & MEMORY.u8[this.SC_MASK]) == MEMORY.u8[this.CDG_CMD]) {
                 MEMORY.u8[this.type] = (this.bytes[i + 1] & MEMORY.u8[this.SC_MASK]);
-
                 switch (MEMORY.u8[this.type]) {
                     case this.MEMORY_PRESET:
                         //WARN: color format changed
@@ -226,7 +211,6 @@ var nid;
                             this.clear((this.bytes[i + 4] & 0x0F));
                         }
                         break;
-
                     case this.BORDER_PRESET:
                         break;
                     case this.TILE_BLOCK_NORMAL:
@@ -235,18 +219,16 @@ var nid;
                         MEMORY.u32[this.C1] = this.bytes[i + 5] & 0x0F;
                         var row = (this.bytes[i + 6] & 0x1F) * 12;
                         var col = (this.bytes[i + 7] & MEMORY.u8[this.SC_MASK]) * 6;
-
                         for (var y = 0; y < 12; y++) {
                             MEMORY.u32[this.SCANL] = this.bytes[i + 8 + y] & MEMORY.u8[this.SC_MASK];
-
                             for (var l = 0; l < 6; l++) {
                                 //TODO: check if (scanLine & 0x1) should forced to int
                                 if (MEMORY.u32[this.SCANL] & 0x1) {
                                     MEMORY.u32[this.C] = MEMORY.u32[this.C1];
-                                } else {
+                                }
+                                else {
                                     MEMORY.u32[this.C] = MEMORY.u32[this.C0];
                                 }
-
                                 // do XOR calculation if need to
                                 if (MEMORY.u8[this.type] == this.TILE_BLOCK_XOR) {
                                     MEMORY.u32[this.C] = this.pixelColorIndex[(col + (5 - l)) + (row + y) * this.WIDTH] ^ MEMORY.u32[this.C];
@@ -263,7 +245,6 @@ var nid;
                         var startIndex = MEMORY.u8[this.type] == this.LOAD_COLOR_TABLE_HIGH ? 8 : 0;
                         for (var m = 0; m < 8; m++) {
                             var cdgColor = this.decodeColor(this.bytes[i + 4 + m * 2], this.bytes[i + 5 + m * 2]);
-
                             //this.colorTable[m + startIndex] = this.RGBToHex(cdgColor[0] * 17, cdgColor[1] * 17, cdgColor[2] * 17);
                             this.colorTable[m + startIndex] = [cdgColor[0] * 17, cdgColor[1] * 17, cdgColor[2] * 17];
                         }

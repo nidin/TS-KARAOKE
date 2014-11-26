@@ -36,7 +36,7 @@ module nid
         private pixelColorIndex;
 
         public imageData:ImageData;
-        public bitmapData:Uint8Array;
+        public bitmapData:any;
         public speed:number = 1;
         public ready:boolean;
         public canvas;
@@ -70,7 +70,7 @@ module nid
             this.canvas = canvas;
             this.context = canvas.getContext('2d');
             this.imageData = this.context.createImageData(this.WIDTH,this.HEIGHT);
-            this.bitmapData = <Uint8Array>this.imageData.data;
+            this.bitmapData = this.imageData.data;
             this.colorTable = [];
         }
         public loadBytes(data:Uint8Array):void{

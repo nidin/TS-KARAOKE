@@ -1,0 +1,38 @@
+defaultTasks "build"
+
+// Change this to name of your starting script file in the src dir.
+def targetClassList = ["CDGDisplay"]
+def node_mods = "node_modules"
+def phantomjs = node_mods+"/phantomjs/bin/phantomjs"
+def requirejs = node_mods+"/requirejs/bin/r.js"
+
+task removeBuild(type:Delete) {
+	delete "build/"
+}
+
+task createBuild(type:Exec, dependsOn:"removeBuild") {
+	commandLine "mkdir", "build"
+}
+
+task clean(dependsOn:"createBuild") {
+	FileTree tree = fileTree('src').include('**/*.js')
+	tree.each { File file -> delete file }
+}
+
+task build(dependsOn:"clean") {
+	def tsc = "tsc"
+	//workingDir "./"
+
+	if (System.properties['os.name'].toLowerCase().contains('mac')) {
+		tsc = "/usr/local/bin/tsc"
+	}
+
+
+	for (targetClass in targetClassList ) {
+		  println "Compiling file ${targetClass}..."
+				exec {
+					executable "tsc"
+					args "-t", "ES5", "--declaration", "--out", "build/"+targetClass+".js", "src/nid/"+targetClass+".ts", "--sourcemap"
+				}
+   }
+}

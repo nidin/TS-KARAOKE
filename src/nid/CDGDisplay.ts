@@ -70,7 +70,7 @@ module nid
             this.canvas = canvas;
             this.context = canvas.getContext('2d');
             this.imageData = this.context.createImageData(this.WIDTH,this.HEIGHT);
-            this.bitmapData = this.imageData.data;
+            this.bitmapData = <Uint8Array>this.imageData.data;
             this.colorTable = [];
         }
         public loadBytes(data:Uint8Array):void{
